@@ -3,6 +3,7 @@
 #include "Cliente.h"
 #include "Producto.h"
 #include "Vendedor.h"
+#include "Venta.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -30,6 +31,7 @@ string  codigo_producto,nombre_producto,categoria_producto, marca_producto, size
 float precio_producto;
 Producto producto;
 vector<Producto> productos;
+vector<Producto> ventas;
 // funciones de registro
 void registrar_cliente();
 
@@ -44,6 +46,8 @@ string encryptar(string);
 string desencryptar(string);
 void registrar_producto();
 void generar_compra();
+void buscar_producto();
+void actualizar_cantidad(vector<vector<string>> content);
 int main() 
 {
   int opcion;
@@ -77,12 +81,24 @@ int main()
             cout<<"Le quedan "<<intentos<<" intentos "<<endl;
             
           } 
-          else 
+          else
           {
-            cout << "\033[2J\033[0;0H";
-            cout << "\tBienvenido" << endl;
-            
-            break;
+              cout << "\033[2J\033[0;0H";
+              cout << "\tBienvenido" << endl;
+              cout<<"1.Buscar producto"<<endl;
+              cin>>opcion;
+              switch(opcion)
+              {
+                  case 1:
+                      buscar_producto();
+                      break;
+                  case 2:
+
+                      break;
+                  default:
+                      break;
+              }
+              break;
           }
         } while (intentos > 0);
         break;
@@ -311,6 +327,7 @@ string desencryptar(string cadenita) {
 void registrar_producto()
 {
   ofstream productosarch("Productos.csv",ios::app);
+  cin.ignore();
   cout<<"\t Nombre del producto: "<<endl;
   getline(cin,nombre_producto);
   cout<<"\t Categoria: "<<endl;
@@ -322,9 +339,78 @@ void registrar_producto()
   cout<<"\tCantidad del producto: "<<endl;
   cin>>cantidad_producto;
   cout<<"\tPrecio del producto: "<<endl;
-  productosarch<<";"<<nombre_producto<<";"<<categoria_producto<<";"<<size_producto<<";"<<cantidad_producto<<";"<<precio_producto<<endl;
+  cin>>precio_producto;
   codigo_producto=generar_codigo_aleatorio();
-  producto=Producto(codigo_producto,nombre_producto,categoria_producto,marca_producto,cantidad_producto,precio_producto);
+  productosarch<<codigo_producto<<","<<nombre_producto<<","<<categoria_producto<<","<<size_producto<<","<<cantidad_producto<<","<<precio_producto<<endl;  producto=Producto(codigo_producto,nombre_producto,categoria_producto,marca_producto,cantidad_producto,precio_producto);
   productosarch.close();
   productos.push_back(producto);
+}
+
+
+void buscar_producto()
+{
+    vector<vector<string>> content;
+    vector<string> row;
+    string line, word;
+    string nombre;
+    int cantidad;
+    fstream file("Productos.csv", ios::in);
+    cin.ignore();
+    cout<<"\tBusque el nombre del producto: ";
+    getline(cin,nombre);
+    if(file.is_open())
+    {
+        while(getline(file, line))
+        {
+            row.clear();
+
+            stringstream str(line);
+
+            while(getline(str, word, ','))
+                row.push_back(word);
+            content.push_back(row);
+        }
+    }
+    else
+        cout<<"Could not open the file\n";
+
+    for(int i=0;i<content[0].size();i++)
+    {
+        if(nombre == content[i][1] && stoi(content[i][4]) > 0)
+        {
+            cout<<"\tStock del producto: " << content[i][4];
+            cout<<"\tCuantas unidades del producto desea adquirir: ";
+            cin >> cantidad;
+            while (cantidad > stoi(content[i][4]))
+            {
+                cout<<"\tCantidad digitada errónea. Cuantas unidades del producto desea adquirir: ";
+                cin >> cantidad;
+            }
+            cout<<"\tProcesando venta...";
+            producto=Producto(content[i][0],content[i][1],content[i][2],content[i][3], stoi(content[i][4]), stof(content[i][5]));
+            ventas.push_back(producto);
+            Venta venta = Venta(ventas, "Julian");
+            content[i][4] = to_string((stoi(content[i][4]) - cantidad));
+            actualizar_cantidad(content);
+            cout <<"Venta realizada"<<endl;
+            venta.imprimirBoleta();
+            break;
+        }
+    }
+}
+
+void actualizar_cantidad(vector<vector<string>> content)
+{
+    fstream file;
+    file.open("Productosnew.csv", ios::out);
+    for(int i=0;i<content.size();i++)
+    {
+        for(int j=0;j<content[i].size();j++)
+        {
+            file << content[i][j] << ",";
+        }
+        file<<"\n";
+    }
+    remove("Productos.csv");
+    rename("Productosnew.csv","Productos.csv" );
 }
