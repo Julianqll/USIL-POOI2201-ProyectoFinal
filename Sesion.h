@@ -33,13 +33,9 @@ private:
   vector<Producto> products;
   vector<Producto> sale;
 public:
-    Sesion()
-    {
+    Sesion(){}
+    ~Sesion(){}
 
-    }
-    ~Sesion() {
-
-    }
 void customerSignUp() {
   ofstream customerLoginFile("customerlogin.csv", ios::app),
   customersFile("customers.csv",ios::app),
@@ -79,8 +75,8 @@ void customerSignUp() {
   customersBinaryFile.close();
   
 }
-void sellerSignUp()
-{
+
+void sellerSignUp() {
   ofstream sellerLoginFile("sellerlogin.csv", ios::app),
   sellersFile("sellers.csv",ios::app),
   sellersBinaryFile("sellers.dat",ios::out|ios::binary);
@@ -117,6 +113,7 @@ void sellerSignUp()
   sellersBinaryFile.close();
   
 }
+
 bool customerSignIn() {
   
   ifstream customerLoginFile;
@@ -200,8 +197,7 @@ string decrypt(string chain) {
   return chain;
 }
 
-void productRegistration()
-{
+void productRegistration() {
   ofstream productsFile("products.csv",ios::app);
   cin.ignore();
   cout<<"\t Nombre del producto: "<<endl;
@@ -221,8 +217,7 @@ void productRegistration()
   productsFile.close();
 }
 
-void quickSort(vector<Producto>&products, int start, int end)
-{
+void quickSort(vector<Producto>&products, int start, int end) {
   if (start < end)
   {
     int pivot = splitVector(products, start, end);
@@ -231,23 +226,21 @@ void quickSort(vector<Producto>&products, int start, int end)
     
   }
 }
-void printElements(vector<Producto>products)
-{
+
+void printElements(vector<Producto>products) {
   for (Producto product : products)
     {
       cout << product.getnombre() << endl;
     }
 }
 
-void swap(Producto &a,Producto &b){
+void swap(Producto &a,Producto &b) {
     Producto aux = a;
     a = b;
     b = aux;
 }
 
-
-int splitVector(vector<Producto>&products, int start, int end)
-{
+int splitVector(vector<Producto>&products, int start, int end) {
   string pivot = products[start].getnombre();
   int i = start + 1;
   for (int j = i; j <= end; j++)
@@ -261,8 +254,8 @@ int splitVector(vector<Producto>&products, int start, int end)
   swap(products[start], products[i-1]);
   return i - 1;
 }
-void productSearching()
-{
+
+void productSearching() {
     vector<vector<string>> content;
     vector<string> row;
     string line, word;
@@ -336,8 +329,7 @@ void productSearching()
     venta.imprimirBoleta();
 }
 
-void updateFile(vector<vector<string>> content)
-{
+void updateFile(vector<vector<string>> content) {
     fstream file;
     file.open("newproducts.csv", ios::out);
     for(int i=0;i<content.size();i++)
@@ -351,8 +343,8 @@ void updateFile(vector<vector<string>> content)
     remove("products.csv");
     rename("newproducts.csv","products.csv" );
 }
-void binarySearch(vector<Producto>&products, string To_Find)
-{
+
+void binarySearch(vector<Producto>&products, string To_Find) {
     int lo = 0, hi = products.size() - 1;
     int mid=lo-(hi-lo)/2;
     // This below check covers all cases , so need to check
@@ -382,6 +374,7 @@ void binarySearch(vector<Producto>&products, string To_Find)
         cout << "No se encontro" << endl;
     }
 }
+
 };
 
 

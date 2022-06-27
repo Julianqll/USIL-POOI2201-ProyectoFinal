@@ -54,6 +54,7 @@ int getedad(){
 string getdni(){
   return dni;
 }
+
 };
 
 
