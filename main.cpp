@@ -1,5 +1,4 @@
 // metodos de ordenamiento quicksort
-
 #include <iostream>
 #include "Sesion.h"
 using namespace std;
@@ -81,6 +80,7 @@ int main()
             seller = sesion.getSeller();
             cout <<"\tBienvenido vendedor(a), "<< seller.getNames() << endl;
             cout<<"1.Registrar producto "<<endl;
+            cout<<"Opcion: ";
             cin>>opcion;
             switch(opcion)
               {

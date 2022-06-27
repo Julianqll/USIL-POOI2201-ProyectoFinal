@@ -1,11 +1,11 @@
 // metodos de ordenamiento quicksort
-
 #include <iostream>
 #include "Sesion.h"
 using namespace std;
 int main() 
 {
   Customer customer;
+  Seller seller;
   Sesion sesion = Sesion();
   int opcion;
   int intentos = 3;
@@ -77,8 +77,10 @@ int main()
           else 
           {
             cout << "\033[2J\033[0;0H";
-            cout <<"\tBienvenido " << endl;
+            seller = sesion.getSeller();
+            cout <<"\tBienvenido vendedor(a), "<< seller.getNames() << endl;
             cout<<"1.Registrar producto "<<endl;
+            cout<<"Opcion: ";
             cin>>opcion;
             switch(opcion)
               {

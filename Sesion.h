@@ -12,8 +12,6 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
-
-
 using namespace std;
 
 class Sesion {
@@ -287,7 +285,7 @@ string randomCodeGeneration() {
   string code;
   char tempCode[20 + 1] = ""; //  +1 por el caracter nulo
   for (int x = 0; x < 20; x++) {
-    int randomIndex = 0 + rand() / (RAND_MAX / ((int)sample.size()) + 1);
+    int randomIndex = 0 + rand() / (RAND_MAX / (sample.size()) + 1);
     tempCode[x] = sample[randomIndex];
   }
   code = tempCode;
@@ -399,8 +397,7 @@ vector<vector<string>> getFileContent (string filename)
       return content;
     }
     else
-        cout<<"No se pudo abrir el archivo\n";
-  
+        cout<<"No se pudo abrir el archivo\n";  
 }
 
 void productSearching() {
@@ -430,9 +427,10 @@ void productSearching() {
         case 1:
           {            
           cout<<"\tBusque el nombre del producto: ";
-            getline(cin,productName);
+            //getline(cin,productName);
+            cin>>productName;
+            cin.ignore();
             productName = toLower(productName);
-            cout << productName;
             
           for(int i=0;i<content.size();i++)
           {
@@ -460,8 +458,7 @@ void productSearching() {
           }
           }
           break;
-    cin.ignore();            
-        
+    cin.ignore();             
         case 2:
           {
           string delete_product;

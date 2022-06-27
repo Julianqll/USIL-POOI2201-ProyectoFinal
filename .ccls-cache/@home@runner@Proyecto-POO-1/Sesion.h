@@ -3,7 +3,7 @@
 #include "Customer.h"
 #include "Product.h"
 #include "Seller.h"
-#include "Venta.h"
+#include "Sale.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -12,8 +12,6 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
-#include "Venta.h"
-
 using namespace std;
 
 class Sesion {
@@ -287,7 +285,7 @@ string randomCodeGeneration() {
   string code;
   char tempCode[20 + 1] = ""; //  +1 por el caracter nulo
   for (int x = 0; x < 20; x++) {
-    int randomIndex = 0 + rand() / (RAND_MAX / ((int)sample.size()) + 1);
+    int randomIndex = 0 + rand() / (RAND_MAX / (sample.size()) + 1);
     tempCode[x] = sample[randomIndex];
   }
   code = tempCode;
@@ -308,11 +306,21 @@ string decrypt(string chain) {
   return chain;
 }
 
+string toLower(string word)
+{
+  for(int i = 0; i < word.length(); i++)
+    {
+      word[i] = tolower(word[i]);
+    }
+  return word;
+}
+
 void productRegistration() {
   ofstream productsFile("products.csv",ios::app);
   cin.ignore();
   cout<<"\t Nombre del producto: "<<endl;
   getline(cin,productName);
+  productName = toLower(productName);
   cout<<"\t Categoria: "<<endl;
   getline(cin,productCategory);
   cout<<"\t Marca: "<<endl;
@@ -341,7 +349,9 @@ void quickSort(vector<Product>&products, int start, int end) {
 void printElements(vector<Product>products) {
   for (Product product : products)
     {
-      cout << product.getnombre() << endl;
+      string productName = product.getName();
+      productName[0] = toupper(productName[0]);
+      cout << productName << endl;
     }
 }
 
@@ -352,11 +362,11 @@ void swap(Product &a,Product &b) {
 }
 
 int splitVector(vector<Product>&products, int start, int end) {
-  string pivot = products[start].getnombre();
+  string pivot = products[start].getName();
   int i = start + 1;
   for (int j = i; j <= end; j++)
   {
-    if (products[j].getnombre() < pivot)
+    if (products[j].getName() < pivot)
     {
       swap(products[i], products[j]);
       i++;
@@ -366,15 +376,13 @@ int splitVector(vector<Product>&products, int start, int end) {
   return i - 1;
 }
 
-void productSearching() {
+vector<vector<string>> getFileContent (string filename)
+{
     vector<vector<string>> content;
     vector<string> row;
     string line, word;
-    string productName;
-    int productQuantity, answer;
-    fstream file("products.csv", ios::in);
-    cin.ignore();
-    if(file.is_open())
+    fstream file(filename, ios::in);
+      if(file.is_open())
     {
         while(getline(file, line))
         {
@@ -386,12 +394,20 @@ void productSearching() {
                 row.push_back(word);
             content.push_back(row);
         }
+      return content;
     }
     else
-        cout<<"No se pudo abrir el archivo\n";
+        cout<<"No se pudo abrir el archivo\n";  
+}
+
+void productSearching() {
+    string productName;
+    int productQuantity, answer;
+    cin.ignore();
+    vector<vector<string>> content = getFileContent("products.csv");
     answer = 0;
     do
-    {
+    {               
       if (answer == 0)
       {
         answer = 1;
@@ -407,13 +423,16 @@ void productSearching() {
       }
       switch(answer)
       {
+          
         case 1:
-          {
-                      cout<<"\tBusque el nombre del producto: ";
-          cin>>productName;
-          cin.ignore();
-          //getline(cin,productName);
-          for(int i=0;i<content[0].size();i++)
+          {            
+          cout<<"\tBusque el nombre del producto: ";
+            //getline(cin,productName);
+            cin>>productName;
+            cin.ignore();
+            productName = toLower(productName);
+            
+          for(int i=0;i<content.size();i++)
           {
             if(productName == content[i][1] && stoi(content[i][4]) > 0)
             {
@@ -430,33 +449,38 @@ void productSearching() {
                 product=Product(content[i][0],content[i][1],content[i][2],content[i][3], productQuantity, stof(content[i][5]));
                 sale.push_back(product);
                 quickSort(sale, 0, sale.size() - 1);
+                cout << "Carrito de compra: " << endl;
                 printElements(sale);
                 products.push_back(product);
                 content[i][4] = to_string(newProductQuantity);
                 updateFile(content);
-                break;
             }
           }
           }
           break;
+    cin.ignore();             
         case 2:
           {
           string delete_product;
           cout<<"Digite el producto que desea eliminar: "<<endl;
-          cin>>delete_product;
+        cin.ignore();  
+         getline(cin,delete_product); 
+            delete_product = toLower(delete_product);
           binarySearch(sale,delete_product);
           break;
           }
         default:
           break;
       }
+    cin.ignore();            
+      
     }while(answer <3&&answer>0);
-  if (sale.length() > 0)
+  if (sale.size() > 0)
   {
-    Venta venta = Venta(sale, "Julian");
+    Sale sesionSale = Sale(sale, customer);
     cout << "\033[2J\033[0;0H";
     cout <<"Venta realizada"<<endl;
-    venta.imprimirBoleta();
+    sesionSale.printTicket();
   }
 }
 
@@ -476,6 +500,7 @@ void updateFile(vector<vector<string>> content) {
 }
 
 void binarySearch(vector<Product>&products, string To_Find) {
+            vector<vector<string>> content = getFileContent("products.csv");
     int lo = 0, hi = products.size() - 1;
     int mid=lo-(hi-lo)/2;
     // This below check covers all cases , so need to check
@@ -483,7 +508,7 @@ void binarySearch(vector<Product>&products, string To_Find) {
     while (hi - lo > 1) 
     {
         int mid = (hi + lo) / 2;
-        if (products[mid].getnombre() < To_Find) 
+        if (products[mid].getName() < To_Find) 
         {
             lo = mid + 1;
         }
@@ -492,12 +517,32 @@ void binarySearch(vector<Product>&products, string To_Find) {
             hi = mid;
         }
     }
-    if (products[lo].getnombre() == To_Find) 
+    if (products[lo].getName() == To_Find) 
     {
+      for(int i=0;i<content.size();i++)
+      {
+        if(products[lo].getName() == content[i][1])
+        {
+          int newProductQuantity = (stoi(content[i][4]) + products[lo].getQuantity());
+            content[i][4] = to_string(newProductQuantity);
+            updateFile(content);
+            break;
+        }
+      }
       products.erase(products.begin()+lo);
     }
-    else if (products[hi].getnombre() == To_Find) 
+    else if (products[hi].getName() == To_Find) 
     {
+      for(int i=0;i<content.size();i++)
+      {
+        if(products[hi].getName() == content[i][1])
+        {
+          int newProductQuantity = (stoi(content[i][4]) + products[hi].getQuantity());
+            content[i][4] = to_string(newProductQuantity);
+            updateFile(content);
+            break;
+        }
+      }
       products.erase(products.begin()+hi);
     }
     else 
@@ -508,7 +553,6 @@ void binarySearch(vector<Product>&products, string To_Find) {
 
 Customer getCustomer()
 {
-  cout << customer.getNames() << endl;
   return customer;
 }
 
