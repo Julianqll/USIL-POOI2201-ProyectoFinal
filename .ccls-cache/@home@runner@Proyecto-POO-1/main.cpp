@@ -1,4 +1,3 @@
-// Hashear contraseñas y nicks de usuarios
 // metodos de ordenamiento quicksort
 
 #include <iostream>
@@ -16,38 +15,40 @@ int main()
     cout << "\t3. Salir" << endl;
     cout << "Digite la opcion: ";
     cin >> opcion;
+    cout << "\033[2J\033[0;0H";
     switch (opcion) 
     {
     case 1:
-      cout << "\033[2J\033[0;0H";
+      //cout << "\033[2J\033[0;0H";
       cout<<"Inicie sesion como:"<<endl;
       cout << "\t1.Cliente: " << endl;
       cout << "\t2.Vendedor: " << endl;
       cout << "\t3. Salir" << endl;
       cout << "Digite la opcion: ";
       cin >> opcion;
+      cout << "\033[2J\033[0;0H";
       switch (opcion) {
       case 1:        
-        do {
-          
-          if (!sesion.iniciar_sesion_cliente()) 
+        do 
+        {
+          bool signedin = sesion.customerSignIn();
+          if (!signedin) 
           {
-            cout << "\033[2J\033[0;0H";
+            
             cout << "Por favor vuelva a intertarlo de nuevo " << endl;
             intentos--;
             cout<<"Le quedan "<<intentos<<" intentos "<<endl;
-            
           } 
-          else
-          {
-              cout << "\033[2J\033[0;0H";
+          else{
+              //cout << "\033[2J\033[0;0H";
               cout << "\tBienvenido" << endl;
               cout<<"1.Buscar producto"<<endl;
+              cout<<"Digite la opcion: ";
               cin>>opcion;
               switch(opcion)
               {
                   case 1:
-                      sesion.buscar_producto();
+                      sesion.productSearching();
                       break;
                   case 2:
 
@@ -57,12 +58,12 @@ int main()
               }
               break;
           }
-        } while (intentos > 0);
+        }while (intentos > 0);
         break;
       case 2:
         do {
           
-          if (!sesion.iniciar_sesion_vendedor()) 
+          if (!sesion.sellerSignIn()) 
           {
             cout << "\033[2J\033[0;0H";
             cout << "Por favor vuelva a intertarlo de nuevo " << endl;
@@ -81,7 +82,7 @@ int main()
             switch(opcion)
               {
                 case 1:
-                  sesion.registrar_producto();
+                  sesion.productRegistration();
                 break;
                 case 2:
                   
@@ -109,13 +110,15 @@ int main()
       {
       case 1:
         cout << "\033[2J\033[0;0H";
-        sesion.registrar_cliente();
+        sesion.customerSignUp();
+        main();
         //esto limpia la consola
         
         break;
       case 2:
         cout << "\033[2J\033[0;0H";
-        sesion.registrar_vendedor();
+        sesion.sellerSignUp();
+        main();
         break;
       default:
         break;
