@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdio.h>  
 #include "Cliente.h"
 #include "Producto.h"
 #include "Vendedor.h"
@@ -13,24 +13,25 @@
 #include <unistd.h>
 #include <vector>
 #include "Venta.h"
+
 using namespace std;
 
 class Sesion {
 private:
-  string codigo_cliente, nombre_usuario_cliente, password_cliente, dni_cliente;
-  int edad_cliente;
-  Cliente cli;
-  vector<Cliente> clientes;
-  string codigo_vendedor, nombre_usuario_vendedor, password_vendedor, dni_vendedor;
-  int edad_vendedor;
-  Vendedor vend;
-  vector<Vendedor> vendedores;
-  string codigo_producto,nombre_producto,categoria_producto, marca_producto, size_producto;
-  int cantidad_producto;
-  float precio_producto;
-  Producto producto;
-  vector<Producto> productos;
-  vector<Producto> ventas;
+  string customerID, customerName, customerPassword, customerDNI;
+  int customerAge;
+  Cliente customer;
+  vector<Cliente> customers;
+  string sellerID, sellerName, sellerPassword, sellerDNI;
+  int sellerAge;
+  Vendedor seller;
+  vector<Vendedor> sellers;
+  string productID, productName, productCategory, productBrand, productSize;
+  int productQuantity;
+  float productPrice;
+  Producto product;
+  vector<Producto> products;
+  vector<Producto> sale;
 public:
     Sesion()
     {
@@ -39,195 +40,236 @@ public:
     ~Sesion() {
 
     }
-void registrar_cliente() {
-  ofstream login("loginCliente.csv", ios::app),clientearch("Cliente.csv",ios::app),clientearchb("Clientes.dat",ios::out|ios::binary);
-  if (login.fail() || clientearch.fail()||clientearchb.fail()) {
+void customerSignUp() {
+  ofstream customerLoginFile("customerlogin.csv", ios::app),
+  customersFile("customers.csv",ios::app),
+  customersBinaryFile("customers.dat",ios::out|ios::binary);
+  if (customerLoginFile.fail() || customersFile.fail() || customersBinaryFile.fail()) {
     cout << "Archivo no existente" << endl;
     exit(1);
   }
-
   cout << "Digite su nombre de usuario: ";
-  cin >> nombre_usuario_cliente;
-  cout << "Digite su contraseña: ";
   cin.ignore();
-
-  getline(cin, password_cliente);
+  getline(cin, customerName);
+  cout << "Digite su contraseña: ";
+  getline(cin, customerPassword);
 
   cout << "Digite su edad: ";
-  cin >> edad_cliente;
+  cin >> customerAge;
   cout << "Digite su DNI: ";
-  cin >> dni_cliente;
+  cin >> customerDNI;
+  
   // aca se guarda el usuario y la contraseña
-  login << encryptar(nombre_usuario_cliente) << " "
-        << encryptar(password_cliente) << endl;
-  login.close();
-  codigo_cliente = generar_codigo_aleatorio();
-  cli = Cliente(nombre_usuario_cliente, password_cliente, dni_cliente,
-                codigo_cliente, edad_cliente);
-
-  clientearch << codigo_cliente << ";" << nombre_usuario_cliente << ";"
-              << edad_cliente << ";" << dni_cliente << endl;
   
-  clientearchb.write(codigo_cliente.c_str(),codigo_cliente.size());     
-  clientearchb.write(nombre_usuario_cliente.c_str(),nombre_usuario_cliente.size());
-  clientearchb.write(dni_cliente.c_str(),dni_cliente.size());
-  clientearchb.write(reinterpret_cast<const char *>(&edad_cliente),sizeof(edad_cliente));
+  customerLoginFile << encrypt(customerName) << " "
+        << encrypt(customerPassword) << endl;
+  customerLoginFile.close();
+  customerID = randomCodeGeneration();
+  customer = Cliente(customerName, customerPassword, customerDNI,
+                customerID, customerAge);
+  customersFile << customerID << ";" << customerName << ";"
+              << customerAge << ";" << customerDNI << endl;
   
-  clientearch.close();
-  clientearchb.close();
-  clientes.push_back(cli);
+  customersBinaryFile.write(customerID.c_str(),customerID.size());     
+  customersBinaryFile.write(customerName.c_str(),customerName.size());
+  customersBinaryFile.write(customerDNI.c_str(),customerDNI.size());
+  customersBinaryFile.write(reinterpret_cast<const char *>(&customerAge),sizeof(customerAge));
+  
+  customersFile.close();
+  customersBinaryFile.close();
+  
 }
-void registrar_vendedor()
+void sellerSignUp()
 {
-   ofstream login, vendedorarchi,vendedorarchib;
-  string user_password;
-  login.open("loginVendedor.csv", ios::out);
-  vendedorarchi.open("Vendedor.csv", ios::out);
-  vendedorarchib.open("Vendendor.dat",ios::out|ios::binary);
-  if (login.fail() || vendedorarchi.fail()||vendedorarchib.fail()) {
+  ofstream sellerLoginFile("sellerlogin.csv", ios::app),
+  sellersFile("sellers.csv",ios::app),
+  sellersBinaryFile("sellers.dat",ios::out|ios::binary);
+  if (sellerLoginFile.fail() || sellersFile.fail() || sellersBinaryFile.fail()) {
     cout << "Archivo no existente" << endl;
     exit(1);
   }
   cout << "Digite su nombre de usuario: ";
-  cin >> nombre_usuario_vendedor;
+  cin.ignore();
+  getline(cin, sellerName);  
   cout << "Digite su contraseña: ";
-  cin >> password_vendedor;
+  getline(cin, sellerPassword);  
   cout << "Digite su edad: ";
-  cin >> edad_vendedor;
+  cin >> sellerAge;
   cout << "Digite su DNI: ";
-  cin >> dni_vendedor;
+  cin >> sellerDNI;
 
-  login << encryptar(nombre_usuario_vendedor) << " " << encryptar(password_vendedor) << endl;
+  sellerLoginFile << encrypt(sellerName) << " " << encrypt(sellerPassword) << endl;
 
-  login.close();
+  sellerLoginFile.close();
   
-  codigo_vendedor = generar_codigo_aleatorio();
-  vend = Vendedor(nombre_usuario_vendedor, password_vendedor, dni_vendedor,
-                  codigo_vendedor, edad_vendedor);
-  vendedorarchi << codigo_vendedor << ";" << nombre_usuario_vendedor << ";"
-                << edad_vendedor << ";" << dni_vendedor << endl;
+  sellerID = randomCodeGeneration();
+  seller = Vendedor(sellerName, sellerPassword, sellerDNI,
+                  sellerID, sellerAge);
+  sellersFile << sellerID << ";" << sellerName << ";"
+                << sellerAge << ";" << sellerDNI << endl;
 
-  vendedorarchib.write(codigo_vendedor.c_str(),codigo_vendedor.size());
-  vendedorarchib.write(nombre_usuario_vendedor.c_str(),nombre_usuario_vendedor.size());
-  vendedorarchib.write(dni_cliente.c_str(),dni_cliente.size());
-  vendedorarchib.write(reinterpret_cast<const char *>(&edad_vendedor),sizeof(edad_vendedor));
+  sellersBinaryFile.write(sellerID.c_str(),sellerID.size());
+  sellersBinaryFile.write(sellerName.c_str(),sellerName.size());
+  sellersBinaryFile.write(customerDNI.c_str(),customerDNI.size());
+  sellersBinaryFile.write(reinterpret_cast<const char *>(&sellerAge),sizeof(sellerAge));
   
-  vendedorarchi.close();
-  vendedorarchib.close();
-  vendedores.push_back(vend);
+  sellersFile.close();
+  sellersBinaryFile.close();
+  
 }
-bool iniciar_sesion_cliente() {
-  ifstream login;
-  string user, pass;
-  string usuario, password;
-  bool band = false;
-
-  login.open("loginCliente.csv", ios::in);
-
-  cout << "Nombre de usuario: ";
-  cin.ignore();
-  getline(cin, usuario);
-  cout << "Contraseña: ";
-  // cin.ignore();
-  getline(cin, password);
+bool customerSignIn() {
   
+  ifstream customerLoginFile;
+  string customerNameData, customerPasswordData;
+  string customerName, customerPassword;
+  bool authenticated = false;
+  customerLoginFile.open("customerlogin.csv", ios::in);
+  cout << "Nombre de usuario: ";
+  cin>>customerName;
+  cout << "Contraseña: ";
+  cin.ignore();
+  getline(cin, customerPassword);
+  cout<<customerName << endl;
+  cout<<customerPassword << endl;
+
   // Dentro de este if se lee el archivo para validar los datos ingresados
-  while (login >> user >> pass) {
-    user = desencryptar(user);
-    pass = desencryptar(pass);
-    if (user == usuario && pass == password) {
-      band = true;
-      login.close();
+  while (customerLoginFile >> customerNameData >> customerPasswordData) {
+    customerNameData = decrypt(customerNameData);
+    customerPasswordData = decrypt(customerPasswordData);
+    
+    if (customerNameData == customerName && customerPasswordData == customerPassword) {
+      authenticated = true;
       break;
     }
   }
-  login.close();
-  return band;
+  customerLoginFile.close();
+  return authenticated;
 }
-bool iniciar_sesion_vendedor() {
-  ifstream login;
-  string user, pass;
-  string usuario, password;
-  bool band = false;
-  login.open("loginVendedor.csv", ios::in);
+
+bool sellerSignIn() {
+  ifstream sellerLoginFile;
+  string sellerNameData, sellerPasswordData;
+  string sellerName, sellerPassword;
+  bool authenticated = false;
+  sellerLoginFile.open("sellerlogin.csv", ios::in);
 
   cout << "Nombre de usuario: ";
-  cin.ignore();
-  getline(cin, usuario);
+  cin>>sellerName;
   cout << "Contraseña: ";
-  getline(cin, password);
-  while (login >> user >> pass) 
+  cin.ignore();
+  getline(cin, sellerPassword);
+  while (sellerLoginFile >> sellerNameData >> sellerPasswordData) 
   {
-    user=desencryptar(user);
-    pass=desencryptar(pass);
-    if (user == usuario && pass == password) {
-      band = true;
-      login.close();
+    sellerNameData=decrypt(sellerNameData);
+    sellerPasswordData=decrypt(sellerPasswordData);
+    if (sellerNameData == sellerName && sellerPasswordData == sellerPassword) {
+      authenticated = true;
+      sellerLoginFile.close();
       break;
     }
   }
-  login.close();
-  return band;
+  sellerLoginFile.close();
+  return authenticated;
 }
-string generar_codigo_aleatorio() {
-  string muestra =
+
+string randomCodeGeneration() {
+  string sample =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
   srand(getpid());
-  string codigo;
-  char codigo_temp[20 + 1] = ""; //  +1 por el caracter nulo
+  string code;
+  char tempCode[20 + 1] = ""; //  +1 por el caracter nulo
   for (int x = 0; x < 20; x++) {
-    int indice_aleatorio = 0 + rand() / (RAND_MAX / ((int)muestra.size()) + 1);
-    codigo_temp[x] = muestra[indice_aleatorio];
+    int randomIndex = 0 + rand() / (RAND_MAX / ((int)sample.size()) + 1);
+    tempCode[x] = sample[randomIndex];
   }
-  codigo = codigo_temp;
-  return codigo;
+  code = tempCode;
+  return code;
 }
-string encryptar(string cadenita) {
-  for (int i = 0; (i < cadenita.length() && cadenita[i] != '\0'); i++) {
-    cadenita[i] = cadenita[i] + i; // hashea con ascii
+
+string encrypt(string chain) {
+  for (int i = 0; (i < chain.length() && chain[i] != '\0'); i++) {
+    chain[i] = chain[i] + i; // hashea con ascii
   }
-  return cadenita;
+  return chain;
 }
-string desencryptar(string cadenita) {
-  for (int i = 0; (i < cadenita.length() && cadenita[i] != '\0'); i++) {
-    cadenita[i] = cadenita[i] - i; // libera hasheo
+
+string decrypt(string chain) {
+  for (int i = 0; (i < chain.length() && chain[i] != '\0'); i++) {
+    chain[i] = chain[i] - i; // libera hasheo
   }
-  return cadenita;
+  return chain;
 }
-void registrar_producto()
+
+void productRegistration()
 {
-  ofstream productosarch("Productos.csv",ios::app);
+  ofstream productsFile("products.csv",ios::app);
   cin.ignore();
   cout<<"\t Nombre del producto: "<<endl;
-  getline(cin,nombre_producto);
+  getline(cin,productName);
   cout<<"\t Categoria: "<<endl;
-  getline(cin,categoria_producto);
+  getline(cin,productCategory);
   cout<<"\t Marca: "<<endl;
-  getline(cin,marca_producto);
+  getline(cin,productBrand);
   cout<<"\tTamaño del producto: "<<endl;
-  getline(cin,size_producto);
+  getline(cin,productSize);
   cout<<"\tCantidad del producto: "<<endl;
-  cin>>cantidad_producto;
+  cin>>productQuantity;
   cout<<"\tPrecio del producto: "<<endl;
-  cin>>precio_producto;
-  codigo_producto=generar_codigo_aleatorio();
-  productosarch<<codigo_producto<<","<<nombre_producto<<","<<categoria_producto<<","<<size_producto<<","<<cantidad_producto<<","<<precio_producto<<endl;  producto=Producto(codigo_producto,nombre_producto,categoria_producto,marca_producto,cantidad_producto,precio_producto);
-  productosarch.close();
-  productos.push_back(producto);
+  cin>>productPrice;
+  productID=randomCodeGeneration();
+  productsFile<<productID<<","<<productName<<","<<productCategory<<","<<productSize<<","<<productQuantity<<","<<productPrice<<endl; product=Producto(productID,productName,productCategory,productBrand,productQuantity,productPrice);
+  productsFile.close();
+}
+
+void quickSort(vector<Producto>&products, int start, int end)
+{
+  if (start < end)
+  {
+    int pivot = splitVector(products, start, end);
+    quickSort(products, start, pivot - 1);
+    quickSort(products, pivot + 1, end);
+    
+  }
+}
+void printElements(vector<Producto>products)
+{
+  for (Producto product : products)
+    {
+      cout << product.getnombre() << endl;
+    }
+}
+
+void swap(Producto &a,Producto &b){
+    Producto aux = a;
+    a = b;
+    b = aux;
 }
 
 
-void buscar_producto()
+int splitVector(vector<Producto>&products, int start, int end)
+{
+  string pivot = products[start].getnombre();
+  int i = start + 1;
+  for (int j = i; j <= end; j++)
+  {
+    if (products[j].getnombre() < pivot)
+    {
+      swap(products[i], products[j]);
+      i++;
+    }
+  }
+  swap(products[start], products[i-1]);
+  return i - 1;
+}
+void productSearching()
 {
     vector<vector<string>> content;
     vector<string> row;
     string line, word;
-    string nombre;
-    int cantidad;
-    fstream file("Productos.csv", ios::in);
+    string productName;
+    int productQuantity, answer;
+    fstream file("products.csv", ios::in);
     cin.ignore();
-    cout<<"\tBusque el nombre del producto: ";
-    getline(cin,nombre);
     if(file.is_open())
     {
         while(getline(file, line))
@@ -242,37 +284,62 @@ void buscar_producto()
         }
     }
     else
-        cout<<"Could not open the file\n";
-
-    for(int i=0;i<content[0].size();i++)
+        cout<<"No se pudo abrir el archivo\n";
+  do
     {
-        if(nombre == content[i][1] && stoi(content[i][4]) > 0)
+    //cin.ignore();
+    cout<<"\tBusque el nombre del producto: ";
+    cin>>productName;
+    cin.ignore
+    //getline(cin,productName);
+  for(int i=0;i<content[0].size();i++)
+  {
+    if(productName == content[i][1] && stoi(content[i][4]) > 0)
+    {
+        cout<<"\tStock del producto: " << content[i][4]<<endl;
+        cout<<"\tCuantas unidades del producto desea adquirir: ";
+        cin >> productQuantity;
+        while (productQuantity > stoi(content[i][4]))
         {
-            cout<<"\tStock del producto: " << content[i][4]<<endl;
-            cout<<"\tCuantas unidades del producto desea adquirir: ";
-            cin >> cantidad;
-            while (cantidad > stoi(content[i][4]))
-            {
-                cout<<"\tCantidad digitada errónea. Cuantas unidades del producto desea adquirir: ";
-                cin >> cantidad;
-            }
-            cout<<"\tProcesando venta..."<<endl;
-            producto=Producto(content[i][0],content[i][1],content[i][2],content[i][3], stoi(content[i][4]), stof(content[i][5]));
-            ventas.push_back(producto);
-            Venta venta = Venta(ventas, "Julian");
-            content[i][4] = to_string((stoi(content[i][4]) - cantidad));
-            actualizar_cantidad(content);
-            cout <<"Venta realizada"<<endl;
-            venta.imprimirBoleta();
-            break;
+            cout<<"\tCantidad digitada errónea. Cuantas unidades del producto desea adquirir: ";
+            cin >> productQuantity;
         }
+        int newProductQuantity = (stoi(content[i][4]) - productQuantity);
+        cout<<"\tProcesando venta..."<<endl;
+        product=Producto(content[i][0],content[i][1],content[i][2],content[i][3], productQuantity, stof(content[i][5]));
+        sale.push_back(product);
+        quickSort(sale, 0, sale.size() - 1);
+        printElements(sale);
+        products.push_back(product);
+        content[i][4] = to_string(newProductQuantity);
+        updateFile(content);
+        break;
     }
 }
+      cout << "¿Desea continuar comprando?" <<endl;
+      cout << "1. Sí, deseo continuar" <<endl;
+      cout<<"2.Eliminar elemento "<<endl;
+      cout << "3. No" <<endl;
+      cout<<"Opcion: ";
+      cin >> answer;
+      if(answer==2)
+      {
+        string delete_product;
+        cout<<"Digite el producto que desea eliminar: "<<endl;
+        cin>>delete_product;
+        binarySearch(sale,delete_product);
+      }
+    }while(answer <3&&answer>0);
+    Venta venta = Venta(sale, "Julian");
+    cout << "\033[2J\033[0;0H";
+    cout <<"Venta realizada"<<endl;
+    venta.imprimirBoleta();
+}
 
-void actualizar_cantidad(vector<vector<string>> content)
+void updateFile(vector<vector<string>> content)
 {
     fstream file;
-    file.open("Productosnew.csv", ios::out);
+    file.open("newproducts.csv", ios::out);
     for(int i=0;i<content.size();i++)
     {
         for(int j=0;j<content[i].size();j++)
@@ -281,7 +348,43 @@ void actualizar_cantidad(vector<vector<string>> content)
         }
         file<<"\n";
     }
-    remove("Productos.csv");
-    rename("Productosnew.csv","Productos.csv" );
+    remove("products.csv");
+    rename("newproducts.csv","products.csv" );
+}
+void binarySearch(vector<Producto>&products, string To_Find)
+{
+    int lo = 0, hi = products.size() - 1;
+    int mid=lo-(hi-lo)/2;
+    // This below check covers all cases , so need to check
+    // for mid=lo-(hi-lo)/2
+    while (hi - lo > 1) 
+    {
+        int mid = (hi + lo) / 2;
+        if (products[mid].getnombre() < To_Find) 
+        {
+            lo = mid + 1;
+        }
+        else 
+        {
+            hi = mid;
+        }
+    }
+    if (products[lo].getnombre() == To_Find) 
+    {
+      products.erase(products.begin()+lo);
+    }
+    else if (products[hi].getnombre() == To_Find) 
+    {
+      products.erase(products.begin()+hi);
+    }
+    else 
+    {
+        cout << "No se encontro" << endl;
+    }
 }
 };
+
+
+
+
+
