@@ -3,6 +3,7 @@
 #include<vector>
 #include<fstream>
 using namespace std;
+
 class Vendedor{
   protected:
   string nombre_usuario,password,dni,codigo;

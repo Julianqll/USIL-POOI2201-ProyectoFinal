@@ -5,6 +5,7 @@
 using namespace std;
 int main() 
 {
+  Customer customer;
   Sesion sesion = Sesion();
   int opcion;
   int intentos = 3;
@@ -19,7 +20,7 @@ int main()
     switch (opcion) 
     {
     case 1:
-      //cout << "\033[2J\033[0;0H";
+      cout << "\033[2J\033[0;0H";
       cout<<"Inicie sesion como:"<<endl;
       cout << "\t1.Cliente: " << endl;
       cout << "\t2.Vendedor: " << endl;
@@ -40,8 +41,9 @@ int main()
             cout<<"Le quedan "<<intentos<<" intentos "<<endl;
           } 
           else{
-              //cout << "\033[2J\033[0;0H";
-              cout << "\tBienvenido" << endl;
+              cout << "\033[2J\033[0;0H";
+              customer = sesion.getCustomer();
+              cout << "\tBienvenido cliente(a), " << customer.getNames() << endl;
               cout<<"1.Buscar producto"<<endl;
               cout<<"Digite la opcion: ";
               cin>>opcion;
@@ -76,8 +78,7 @@ int main()
           {
             cout << "\033[2J\033[0;0H";
             cout <<"\tBienvenido " << endl;
-            cout<<"1.Que desea realizar "<<endl;
-            cout<<"2.Realizar compra "<<endl;
+            cout<<"1.Registrar producto "<<endl;
             cin>>opcion;
             switch(opcion)
               {

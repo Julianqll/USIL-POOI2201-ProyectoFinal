@@ -3,25 +3,25 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include "Producto.h"
+#include "Product.h"
 
 using namespace std;
 
-class Venta {
+class Sale {
 private:
-    vector<Producto> productos;
+    vector<Product> products;
     string cliente;
 public:
-    Venta()
+    Sale()
     {
 
     }
-    ~Venta() {
+    ~Sale() {
 
     }
-    Venta(vector<Producto> productos, string cliente)
+    Sale(vector<Product> products, string cliente)
     {
-        this->productos = productos;
+        this->products = products;
         this->cliente = cliente;
     }
     // metodos
@@ -30,10 +30,10 @@ public:
     {
         cout << "Detalle de compra: "<< endl;
         int sum = 0;
-        for (Producto producto : productos)
+        for (Product product : products)
         {
-            cout << "Item: " << producto.getnombre() << " Cantidad: " << producto.getcantidad() << " Total: " << producto.getcantidad()*producto.getprecio() <<  endl;
-            sum += producto.getcantidad()*producto.getprecio();
+            cout << "Item: " << product.getnombre() << " Cantidad: " << product.getcantidad() << " Total: " << product.getcantidad()*product.getprecio() <<  endl;
+            sum += product.getcantidad()*product.getprecio();
         }
         cout << "Importe total: " << sum << endl;
     }

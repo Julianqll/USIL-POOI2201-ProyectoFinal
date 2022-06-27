@@ -1,9 +1,9 @@
 #pragma once
 #include <stdio.h>  
-#include "Cliente.h"
-#include "Producto.h"
-#include "Vendedor.h"
-#include "Venta.h"
+#include "Customer.h"
+#include "Product.h"
+#include "Seller.h"
+#include "Sale.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -12,57 +12,145 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
-#include "Venta.h"
+
 
 using namespace std;
 
 class Sesion {
 private:
-  string customerID, customerName, customerPassword, customerDNI;
+  string customerID, customerNickName, customerName, customerPassword, customerDNI;
   int customerAge;
-  Cliente customer;
-  vector<Cliente> customers;
-  string sellerID, sellerName, sellerPassword, sellerDNI;
+  Customer customer;
+  //vector<Customer> customers;
+  string sellerID, sellerNickName, sellerName, sellerPassword, sellerDNI;
   int sellerAge;
-  Vendedor seller;
-  vector<Vendedor> sellers;
+  Seller seller;
+  //vector<Seller> sellers;
   string productID, productName, productCategory, productBrand, productSize;
   int productQuantity;
   float productPrice;
-  Producto product;
-  vector<Producto> products;
-  vector<Producto> sale;
+  Product product;
+  vector<Product> products;
+  vector<Product> sale;
 public:
     Sesion(){}
     ~Sesion(){}
+
+
+void userCreation(string userType, string ID, string nickName, string password)
+{
+  if (userType == "Customer")
+  {
+    vector<vector<string>> content;
+    vector<string> row;
+    string line, word;
+    fstream file("customers.csv", ios::in);
+    if(file.is_open())
+    {
+        while(getline(file, line))
+        {
+            row.clear();
+
+            stringstream str(line);
+
+            while(getline(str, word, ';'))
+                row.push_back(word);
+            content.push_back(row);
+        }
+    }
+    for(int i=0;i<content.size();i++)
+    {
+    if(ID == content[i][0])
+    {
+        customer = Customer(content[i][0], content[i][1], nickName, password, content[i][3], stoi(content[i][2]));
+        break;
+    }
+}
+  }
+  else if (userType == "Seller")
+  {
+      vector<vector<string>> content;
+    vector<string> row;
+    string line, word;
+    fstream file("sellers.csv", ios::in);
+    if(file.is_open())
+    {
+        while(getline(file, line))
+        {
+            row.clear();
+
+            stringstream str(line);
+
+            while(getline(str, word, ';'))
+                row.push_back(word);
+            content.push_back(row);
+        }
+    }
+    for(int i=0;i<content.size();i++)
+    {
+    if(ID == content[i][0])
+    {
+        seller = Seller(content[i][0], content[i][1], nickName, password, content[i][3], stoi(content[i][2]));
+        break;
+    }
+}
+  }
+}
+
+bool userExistence(string fileName, string userNickName){
+  string userNickNameData;
+  string userID;
+  string userNickNameDataDecrypted;
+  ifstream loginFile(fileName, ios::app);
+  while (loginFile >> userID >> userNickNameData) {
+    userNickNameDataDecrypted = decrypt(userNickNameData);
+    
+    if (userNickName == userNickNameDataDecrypted) {
+      return true;
+    }
+  }
+  return false;
+}
 
 void customerSignUp() {
   ofstream customerLoginFile("customerlogin.csv", ios::app),
   customersFile("customers.csv",ios::app),
   customersBinaryFile("customers.dat",ios::out|ios::binary);
+
+  
   if (customerLoginFile.fail() || customersFile.fail() || customersBinaryFile.fail()) {
     cout << "Archivo no existente" << endl;
     exit(1);
   }
-  cout << "Digite su nombre de usuario: ";
+  cout << "Digite su nombres y apellidos: ";
   cin.ignore();
   getline(cin, customerName);
+    cout << "Digite su nombre de usuario: ";
+  getline(cin, customerNickName);
   cout << "Digite su contraseña: ";
   getline(cin, customerPassword);
-
   cout << "Digite su edad: ";
   cin >> customerAge;
   cout << "Digite su DNI: ";
   cin >> customerDNI;
-  
-  // aca se guarda el usuario y la contraseña
-  
-  customerLoginFile << encrypt(customerName) << " "
-        << encrypt(customerPassword) << endl;
-  customerLoginFile.close();
   customerID = randomCodeGeneration();
-  customer = Cliente(customerName, customerPassword, customerDNI,
-                customerID, customerAge);
+
+  // verificar si no existe un nombre repetido, de lo contrario volver a pedir nombre
+  bool userExists = userExistence("customerlogin.csv", customerNickName);
+  if (userExists)
+  {
+    do{
+      cout << "Nombre de usuario existente. Digite un nuevo nombre de usuario: ";
+      cin.ignore();
+      getline(cin, customerNickName);
+      userExists = userExistence("customerlogin.csv", customerNickName);
+    }
+    while(userExists);
+  }
+  customerLoginFile << customerID << " " <<encrypt(customerNickName) << " "
+<< encrypt(customerPassword) << endl;
+  customerLoginFile.close();
+  
   customersFile << customerID << ";" << customerName << ";"
               << customerAge << ";" << customerDNI << endl;
   
@@ -84,23 +172,39 @@ void sellerSignUp() {
     cout << "Archivo no existente" << endl;
     exit(1);
   }
-  cout << "Digite su nombre de usuario: ";
+  cout << "Digite su nombres y apellidos: ";
   cin.ignore();
-  getline(cin, sellerName);  
+  getline(cin, sellerName);
+  cout << "Digite su nombre de usuario: ";
+  getline(cin, sellerNickName);
   cout << "Digite su contraseña: ";
   getline(cin, sellerPassword);  
   cout << "Digite su edad: ";
   cin >> sellerAge;
   cout << "Digite su DNI: ";
   cin >> sellerDNI;
-
-  sellerLoginFile << encrypt(sellerName) << " " << encrypt(sellerPassword) << endl;
-
-  sellerLoginFile.close();
-  
   sellerID = randomCodeGeneration();
-  seller = Vendedor(sellerName, sellerPassword, sellerDNI,
-                  sellerID, sellerAge);
+
+
+  //verificar si el usuario existe
+    // verificar si no existe un nombre repetido, de lo contrario volver a pedir nombre
+  bool userExists = userExistence("sellerlogin.csv", sellerNickName);
+  if (userExists)
+  {
+    do{
+      cout << "Nombre de usuario existente. Digite un nuevo nombre de usuario: ";
+      cin.ignore();
+      getline(cin, sellerNickName);
+      userExists = userExistence("sellerlogin.csv", sellerNickName);
+    }
+    while(userExists);
+  }
+
+  sellerLoginFile << sellerID << " " <<encrypt(sellerNickName) << " "
+<< encrypt(sellerPassword) << endl;
+  sellerLoginFile.close();
+
+  
   sellersFile << sellerID << ";" << sellerName << ";"
                 << sellerAge << ";" << sellerDNI << endl;
 
@@ -117,54 +221,61 @@ void sellerSignUp() {
 bool customerSignIn() {
   
   ifstream customerLoginFile;
-  string customerNameData, customerPasswordData;
-  string customerName, customerPassword;
+  string customerNickNameData, customerPasswordData, customerIDData;
+  string customerNickName, customerPassword, customerID;
   bool authenticated = false;
   customerLoginFile.open("customerlogin.csv", ios::in);
   cout << "Nombre de usuario: ";
-  cin>>customerName;
+  cin>>customerNickName;
   cout << "Contraseña: ";
   cin.ignore();
   getline(cin, customerPassword);
-  cout<<customerName << endl;
-  cout<<customerPassword << endl;
 
   // Dentro de este if se lee el archivo para validar los datos ingresados
-  while (customerLoginFile >> customerNameData >> customerPasswordData) {
-    customerNameData = decrypt(customerNameData);
+  while (customerLoginFile >> customerIDData >> customerNickNameData >> customerPasswordData) {
+    customerNickNameData = decrypt(customerNickNameData);
     customerPasswordData = decrypt(customerPasswordData);
     
-    if (customerNameData == customerName && customerPasswordData == customerPassword) {
+    if (customerNickNameData == customerNickName && customerPasswordData == customerPassword) {
       authenticated = true;
+      customerID = customerIDData;
+      //crear objeto de cliente
+      userCreation("Customer", customerID, customerNickName, encrypt(customerPassword));
       break;
     }
   }
   customerLoginFile.close();
+  
   return authenticated;
 }
 
 bool sellerSignIn() {
   ifstream sellerLoginFile;
-  string sellerNameData, sellerPasswordData;
-  string sellerName, sellerPassword;
+  string sellerNickNameData, sellerPasswordData, sellerIDData;
+  string sellerNickName, sellerPassword, sellerID;
   bool authenticated = false;
   sellerLoginFile.open("sellerlogin.csv", ios::in);
 
   cout << "Nombre de usuario: ";
-  cin>>sellerName;
+  cin>>sellerNickName;
   cout << "Contraseña: ";
   cin.ignore();
   getline(cin, sellerPassword);
-  while (sellerLoginFile >> sellerNameData >> sellerPasswordData) 
-  {
-    sellerNameData=decrypt(sellerNameData);
-    sellerPasswordData=decrypt(sellerPasswordData);
-    if (sellerNameData == sellerName && sellerPasswordData == sellerPassword) {
+
+
+    while (sellerLoginFile >> sellerIDData >> sellerNickNameData >> sellerPasswordData) {
+    sellerNickNameData = decrypt(sellerNickNameData);
+    sellerPasswordData = decrypt(sellerPasswordData);
+    
+    if (sellerNickNameData == sellerNickName && sellerPasswordData == sellerPassword) {
       authenticated = true;
-      sellerLoginFile.close();
+      sellerID = sellerIDData;
+      //crear objeto de cliente
+      userCreation("Seller", sellerID, sellerNickName, encrypt(sellerPassword));
       break;
     }
   }
+  
   sellerLoginFile.close();
   return authenticated;
 }
@@ -197,11 +308,21 @@ string decrypt(string chain) {
   return chain;
 }
 
+string toLower(string word)
+{
+  for(int i = 0; i < word.length(); i++)
+    {
+      word[i] = tolower(word[i]);
+    }
+  return word;
+}
+
 void productRegistration() {
   ofstream productsFile("products.csv",ios::app);
   cin.ignore();
   cout<<"\t Nombre del producto: "<<endl;
   getline(cin,productName);
+  productName = toLower(productName);
   cout<<"\t Categoria: "<<endl;
   getline(cin,productCategory);
   cout<<"\t Marca: "<<endl;
@@ -213,11 +334,11 @@ void productRegistration() {
   cout<<"\tPrecio del producto: "<<endl;
   cin>>productPrice;
   productID=randomCodeGeneration();
-  productsFile<<productID<<","<<productName<<","<<productCategory<<","<<productSize<<","<<productQuantity<<","<<productPrice<<endl; product=Producto(productID,productName,productCategory,productBrand,productQuantity,productPrice);
+  productsFile<<productID<<","<<productName<<","<<productCategory<<","<<productSize<<","<<productQuantity<<","<<productPrice<<endl; product=Product(productID,productName,productCategory,productBrand,productQuantity,productPrice);
   productsFile.close();
 }
 
-void quickSort(vector<Producto>&products, int start, int end) {
+void quickSort(vector<Product>&products, int start, int end) {
   if (start < end)
   {
     int pivot = splitVector(products, start, end);
@@ -227,25 +348,27 @@ void quickSort(vector<Producto>&products, int start, int end) {
   }
 }
 
-void printElements(vector<Producto>products) {
-  for (Producto product : products)
+void printElements(vector<Product>products) {
+  for (Product product : products)
     {
-      cout << product.getnombre() << endl;
+      string productName = product.getName();
+      productName[0] = toupper(productName[0]);
+      cout << productName << endl;
     }
 }
 
-void swap(Producto &a,Producto &b) {
-    Producto aux = a;
+void swap(Product &a,Product &b) {
+    Product aux = a;
     a = b;
     b = aux;
 }
 
-int splitVector(vector<Producto>&products, int start, int end) {
-  string pivot = products[start].getnombre();
+int splitVector(vector<Product>&products, int start, int end) {
+  string pivot = products[start].getName();
   int i = start + 1;
   for (int j = i; j <= end; j++)
   {
-    if (products[j].getnombre() < pivot)
+    if (products[j].getName() < pivot)
     {
       swap(products[i], products[j]);
       i++;
@@ -255,15 +378,13 @@ int splitVector(vector<Producto>&products, int start, int end) {
   return i - 1;
 }
 
-void productSearching() {
+vector<vector<string>> getFileContent (string filename)
+{
     vector<vector<string>> content;
     vector<string> row;
     string line, word;
-    string productName;
-    int productQuantity, answer;
-    fstream file("products.csv", ios::in);
-    cin.ignore();
-    if(file.is_open())
+    fstream file(filename, ios::in);
+      if(file.is_open())
     {
         while(getline(file, line))
         {
@@ -275,58 +396,95 @@ void productSearching() {
                 row.push_back(word);
             content.push_back(row);
         }
+      return content;
     }
     else
         cout<<"No se pudo abrir el archivo\n";
-  do
-    {
-    //cin.ignore();
-    cout<<"\tBusque el nombre del producto: ";
-    cin>>productName;
-    cin.ignore();
-    //getline(cin,productName);
-  for(int i=0;i<content[0].size();i++)
-  {
-    if(productName == content[i][1] && stoi(content[i][4]) > 0)
-    {
-        cout<<"\tStock del producto: " << content[i][4]<<endl;
-        cout<<"\tCuantas unidades del producto desea adquirir: ";
-        cin >> productQuantity;
-        while (productQuantity > stoi(content[i][4]))
-        {
-            cout<<"\tCantidad digitada errónea. Cuantas unidades del producto desea adquirir: ";
-            cin >> productQuantity;
-        }
-        int newProductQuantity = (stoi(content[i][4]) - productQuantity);
-        cout<<"\tProcesando venta..."<<endl;
-        product=Producto(content[i][0],content[i][1],content[i][2],content[i][3], productQuantity, stof(content[i][5]));
-        sale.push_back(product);
-        quickSort(sale, 0, sale.size() - 1);
-        printElements(sale);
-        products.push_back(product);
-        content[i][4] = to_string(newProductQuantity);
-        updateFile(content);
-        break;
-    }
+  
 }
-      cout << "¿Desea continuar comprando?" <<endl;
+
+void productSearching() {
+    string productName;
+    int productQuantity, answer;
+    cin.ignore();
+    vector<vector<string>> content = getFileContent("products.csv");
+    answer = 0;
+    do
+    {               
+      if (answer == 0)
+      {
+        answer = 1;
+      }
+      else
+      {
+        cout << "¿Desea continuar comprando?" <<endl;
       cout << "1. Sí, deseo continuar" <<endl;
       cout<<"2.Eliminar elemento "<<endl;
       cout << "3. No" <<endl;
       cout<<"Opcion: ";
       cin >> answer;
-      if(answer==2)
-      {
-        string delete_product;
-        cout<<"Digite el producto que desea eliminar: "<<endl;
-        cin>>delete_product;
-        binarySearch(sale,delete_product);
       }
+      switch(answer)
+      {
+          
+        case 1:
+          {            
+          cout<<"\tBusque el nombre del producto: ";
+            getline(cin,productName);
+            productName = toLower(productName);
+            cout << productName;
+            
+          for(int i=0;i<content.size();i++)
+          {
+            if(productName == content[i][1] && stoi(content[i][4]) > 0)
+            {
+                cout<<"\tStock del producto: " << content[i][4]<<endl;
+                cout<<"\tCuantas unidades del producto desea adquirir: ";
+                cin >> productQuantity;
+                while (productQuantity > stoi(content[i][4]))
+                {
+                    cout<<"\tCantidad digitada errónea. Cuantas unidades del producto desea adquirir:";
+                    cin >> productQuantity;
+                }
+                int newProductQuantity = (stoi(content[i][4]) - productQuantity);
+                cout<<"\tProcesando venta..."<<endl;
+                product=Product(content[i][0],content[i][1],content[i][2],content[i][3], productQuantity, stof(content[i][5]));
+                sale.push_back(product);
+                quickSort(sale, 0, sale.size() - 1);
+                cout << "Carrito de compra: " << endl;
+                printElements(sale);
+                products.push_back(product);
+                content[i][4] = to_string(newProductQuantity);
+                updateFile(content);
+            }
+          }
+          }
+          break;
+    cin.ignore();            
+        
+        case 2:
+          {
+          string delete_product;
+          cout<<"Digite el producto que desea eliminar: "<<endl;
+        cin.ignore();  
+         getline(cin,delete_product); 
+            delete_product = toLower(delete_product);
+          binarySearch(sale,delete_product);
+          break;
+          }
+        default:
+          break;
+      }
+    cin.ignore();            
+      
     }while(answer <3&&answer>0);
-    Venta venta = Venta(sale, "Julian");
+  if (sale.size() > 0)
+  {
+    Sale sesionSale = Sale(sale, customer);
     cout << "\033[2J\033[0;0H";
     cout <<"Venta realizada"<<endl;
-    venta.imprimirBoleta();
+    sesionSale.printTicket();
+  }
 }
 
 void updateFile(vector<vector<string>> content) {
@@ -344,7 +502,8 @@ void updateFile(vector<vector<string>> content) {
     rename("newproducts.csv","products.csv" );
 }
 
-void binarySearch(vector<Producto>&products, string To_Find) {
+void binarySearch(vector<Product>&products, string To_Find) {
+            vector<vector<string>> content = getFileContent("products.csv");
     int lo = 0, hi = products.size() - 1;
     int mid=lo-(hi-lo)/2;
     // This below check covers all cases , so need to check
@@ -352,7 +511,7 @@ void binarySearch(vector<Producto>&products, string To_Find) {
     while (hi - lo > 1) 
     {
         int mid = (hi + lo) / 2;
-        if (products[mid].getnombre() < To_Find) 
+        if (products[mid].getName() < To_Find) 
         {
             lo = mid + 1;
         }
@@ -361,18 +520,48 @@ void binarySearch(vector<Producto>&products, string To_Find) {
             hi = mid;
         }
     }
-    if (products[lo].getnombre() == To_Find) 
+    if (products[lo].getName() == To_Find) 
     {
+      for(int i=0;i<content.size();i++)
+      {
+        if(products[lo].getName() == content[i][1])
+        {
+          int newProductQuantity = (stoi(content[i][4]) + products[lo].getQuantity());
+            content[i][4] = to_string(newProductQuantity);
+            updateFile(content);
+            break;
+        }
+      }
       products.erase(products.begin()+lo);
     }
-    else if (products[hi].getnombre() == To_Find) 
+    else if (products[hi].getName() == To_Find) 
     {
+      for(int i=0;i<content.size();i++)
+      {
+        if(products[hi].getName() == content[i][1])
+        {
+          int newProductQuantity = (stoi(content[i][4]) + products[hi].getQuantity());
+            content[i][4] = to_string(newProductQuantity);
+            updateFile(content);
+            break;
+        }
+      }
       products.erase(products.begin()+hi);
     }
     else 
     {
         cout << "No se encontro" << endl;
     }
+}
+
+Customer getCustomer()
+{
+  return customer;
+}
+
+Seller getSeller()
+{
+  return seller;  
 }
 
 };

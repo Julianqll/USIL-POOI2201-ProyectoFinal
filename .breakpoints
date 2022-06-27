@@ -2,28 +2,10 @@
   "files": {
     "main.cpp": [
       {
-        "id": "a0dabcdb-1f9a-42c4-b65b-9a7e6ae2972d",
-        "line": 34,
-        "version": 10751,
-        "index": 837
-      },
-      {
-        "id": "b242ce42-5ebf-4c3e-92d6-a3fd7a98db27",
-        "line": 35,
-        "version": 10751,
-        "index": 888
-      },
-      {
-        "id": "3eaaa456-7878-455a-ad19-376ba22a1fc5",
-        "line": 42,
-        "version": 10751,
-        "index": 1109
-      },
-      {
-        "id": "e792ed87-7e98-476b-9e75-bf0991f01dcb",
-        "line": 49,
-        "version": 10751,
-        "index": 1360
+        "id": "315eab5a-d0c0-4eea-8cec-bf1f796ec9f2",
+        "line": 37,
+        "version": 10957,
+        "index": 924
       }
     ]
   }
