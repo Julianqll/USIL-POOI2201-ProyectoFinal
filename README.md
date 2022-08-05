@@ -1,5 +1,5 @@
 # POOFinalProject
-Aplicación de ventas, enfocada en los flujos de 2 tipos de usuarios: **Cliente**(_Customer_) y **Vendedor**(_Vendedor_)
+Aplicación de ventas, enfocada en los flujos de 2 tipos de usuarios: **Cliente**(_Customer_) y **Vendedor**(_Seller_)
 ## Integrantes:
 - Galvan Oyague, Andres Daniel
 - Ojeda Valera, Fabian Imanol
